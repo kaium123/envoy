@@ -72,4 +72,9 @@ static_resources:
                     socket_address:
                       address: kong_container
                       port_value: 8000
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: grpc-service
+                      port_value: 50051
                   
