@@ -1,0 +1,1 @@
+grpcurl -plaintext grpc.server.com:80 my.custom.server.Service/Method

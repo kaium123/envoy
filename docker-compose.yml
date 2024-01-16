@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  grpc-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "50051:50051"
+    networks:
+      - mygrpcnetwork
+
+  envoy-proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile.envoy
+    # volumes:
+    #   - ./envoy.yaml:/etc/envoy/envoy.yaml
+    ports:
+      - "8081:8081"
+      - "8085:8085"
+    depends_on:
+      - grpc-service
+    networks:
+      - mygrpcnetwork
+
+networks:
+  mygrpcnetwork:
+    driver: bridge
