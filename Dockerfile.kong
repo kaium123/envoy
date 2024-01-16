@@ -1,0 +1,28 @@
+FROM golang:1.20 AS build
+
+ENV GO111MODULE=on
+ENV GOOS=linux
+ENV CGO_ENABLED=0
+ENV GOARCH=amd64
+
+COPY plugin/* /app/
+COPY ./config.yml /app/config.yml
+COPY ./script.sh /app/script.sh 
+
+RUN cd /app && \
+   go mod download && \
+   go build -o /app/my-plugin my-plugin.go 
+
+RUN chmod +x /app/script.sh 
+
+FROM kong:alpine
+USER root
+
+# Create a directory and give it write permissions
+RUN mkdir -p /app && chmod 777 /app
+
+COPY --from=build /app/my-plugin /app/go-plugins/
+COPY --from=build /app/config.yml /app/
+COPY --from=build /app/script.sh /app/
+
+CMD ["/app/script.sh"]
