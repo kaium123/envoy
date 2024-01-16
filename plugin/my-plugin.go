@@ -5,6 +5,7 @@ import (
 
 	"github.com/Kong/go-pdk"
 	"github.com/Kong/go-pdk/server"
+
 )
 
 func main() {
@@ -32,7 +33,7 @@ func (conf Config) Access(kong *pdk.PDK) {
 
 	if header == "" {
 		kong.Log.Err(fmt.Sprintf("Header %s is empty", conf.HeaderKey))
-		kong.Response.Exit(401, "", nil)
+		kong.Response.Exit(401, []byte{}, nil)
 		return
 	}
 

@@ -1,1 +1,5 @@
 grpcurl -plaintext grpc.server.com:80 my.custom.server.Service/Method
+protoc -I$(GOOGLEAPIS_DIR) -I. --include_imports --include_source_info --descriptor_set_out=protos/helloworld.pb protos/helloworld.proto
+
+git clone https://github.com/googleapis/googleapis
+

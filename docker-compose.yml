@@ -28,6 +28,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.kong
+    container_name: kong_container
     environment:
         - KONG_DATABASE=off
         - KONG_GO_PLUGINS_DIR=/app/go-plugins
