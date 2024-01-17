@@ -13,7 +13,7 @@ import (
 
 	pb "gg/protos"
 
-	_ "github.com/lib/pq" // Import the PostgreSQL driver
+	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"gorm.io/driver/postgres"
@@ -24,8 +24,8 @@ import (
 var Db *gorm.DB
 
 func ConnectDB() {
-	HOST := "localhost"
-	PORT := "54321"
+	HOST := "sm-db"
+	PORT := "5432"
 	USER := "sm_user3"
 	PASSWORD := "12345678"
 	DBNAME := "testdb"
@@ -77,29 +77,44 @@ func (s *server) SayHello(ctx context.Context, req *pb.HelloRequest) (*pb.HelloR
 }
 
 func (s *server) CreateBook(ctx context.Context, req *pb.CreateBookRequestBody) (*pb.CreateBookResponseBody, error) {
-	// Implement your logic to create a book
-	// For demonstration purposes, just return a dummy response
+	db := GetDB()
+	book := &Book{Name: req.Name, AuthorID: int64(req.AuthorId)}
+	err := db.Create(book).Error
+	if err != nil {
+		return nil, err
+	}
+
 	return &pb.CreateBookResponseBody{
-		Id:  123,
+		Id:  int32(book.ID),
 		Msg: "Book created successfully",
 	}, nil
 }
 
-func (s *server) GetBook(ctx context.Context, req *pb.GetBookRequestBody) (*pb.GetBookResponseBody, error) {
-	// Implement your logic to get a book by ID
-	// For demonstration purposes, just return a dummy response
+func (s *server) GetBook(ctx context.Context, req *pb.BookID) (*pb.GetBookResponseBody, error) {
+	db := GetDB()
+	book := &Book{}
+	err := db.Where("id = ? ", req.Id).First(book).Error
+	if err != nil {
+		return nil, err
+	}
+
 	return &pb.GetBookResponseBody{
-		Id:       456,
-		Name:     "Sample Book",
-		AuthorId: 789,
+		Id:       int32(book.ID),
+		Name:     book.Name,
+		AuthorId: int32(book.AuthorID),
 	}, nil
 }
 
-func (s *server) UpdateBook(ctx context.Context, req *pb.CreateBookRequestBody) (*pb.CreateBookResponseBody, error) {
-	// Implement your logic to update a book
-	// For demonstration purposes, just return a dummy response
+func (s *server) UpdateBook(ctx context.Context, req *pb.UpdateBookRequestBody) (*pb.CreateBookResponseBody, error) {
+	db := GetDB()
+	book := &Book{ID: int64(req.Id), Name: req.Name, AuthorID: int64(req.AuthorId)}
+	err := db.Save(book).Error
+	if err != nil {
+		return nil, err
+	}
+
 	return &pb.CreateBookResponseBody{
-		Id:  123,
+		Id:  int32(book.ID),
 		Msg: "Book updated successfully",
 	}, nil
 }
@@ -115,7 +130,6 @@ func main() {
 	s := grpc.NewServer()
 	reflection.Register(s)
 
-	// Register each gRPC service separately
 	pb.RegisterGreeterServer(s, &server{})
 	pb.RegisterBookServer(s, &server{})
 

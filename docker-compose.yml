@@ -15,8 +15,8 @@ services:
       context: .
       dockerfile: Dockerfile.envoy
     container_name: envoy_container
-    # volumes:
-    #   - ./envoy.yaml:/etc/envoy/envoy.yaml
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml
     ports:
       - "8081:8081"
       - "8085:8085"

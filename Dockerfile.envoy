@@ -1,5 +1,8 @@
 FROM envoyproxy/envoy:v1.18.4
-COPY ./envoy.yaml /etc/envoy/envoy.yaml
+# COPY ./envoy.yaml /etc/envoy/envoy.yaml
 COPY ./protos/helloworld.proto /etc/envoy/protos/helloworld.proto
 COPY ./protos/helloworld.pb /etc/envoy/protos/helloworld.pb
 COPY ./google /etc/envoy/google
+
+COPY ./protos/book.proto /etc/envoy/protos/book.proto
+COPY ./protos/book.pb /etc/envoy/protos/book.pb

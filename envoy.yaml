@@ -27,7 +27,7 @@ static_resources:
             - name: local_service
               domains: ["*"]
               routes:
-              - match: {prefix: "/helloworld.Greeter"}
+              - match: {prefix: "/"}
                 route: {cluster: service-one, timeout: {seconds: 60}}
               # - match: {prefix: "/helloworld.Greeter"}
               #   route: {cluster: service-two, timeout: {seconds: 60}}
@@ -38,7 +38,7 @@ static_resources:
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_json_transcoder.v3.GrpcJsonTranscoder
               # proto_descriptor_path: "/home/upay/Desktop/envoy/example.pb"
-              proto_descriptor: "/etc/envoy/protos/helloworld.pb"
+              proto_descriptor: "/etc/envoy/protos/book.pb"
               services: ["helloworld.Greeter"]
               match_incoming_request_route: false
               ignore_unknown_query_parameters: true

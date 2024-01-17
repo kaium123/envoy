@@ -29,8 +29,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BookClient interface {
 	CreateBook(ctx context.Context, in *CreateBookRequestBody, opts ...grpc.CallOption) (*CreateBookResponseBody, error)
-	GetBook(ctx context.Context, in *GetBookRequestBody, opts ...grpc.CallOption) (*GetBookResponseBody, error)
-	UpdateBook(ctx context.Context, in *CreateBookRequestBody, opts ...grpc.CallOption) (*CreateBookResponseBody, error)
+	GetBook(ctx context.Context, in *BookID, opts ...grpc.CallOption) (*GetBookResponseBody, error)
+	UpdateBook(ctx context.Context, in *UpdateBookRequestBody, opts ...grpc.CallOption) (*CreateBookResponseBody, error)
 }
 
 type bookClient struct {
@@ -50,7 +50,7 @@ func (c *bookClient) CreateBook(ctx context.Context, in *CreateBookRequestBody, 
 	return out, nil
 }
 
-func (c *bookClient) GetBook(ctx context.Context, in *GetBookRequestBody, opts ...grpc.CallOption) (*GetBookResponseBody, error) {
+func (c *bookClient) GetBook(ctx context.Context, in *BookID, opts ...grpc.CallOption) (*GetBookResponseBody, error) {
 	out := new(GetBookResponseBody)
 	err := c.cc.Invoke(ctx, Book_GetBook_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -59,7 +59,7 @@ func (c *bookClient) GetBook(ctx context.Context, in *GetBookRequestBody, opts .
 	return out, nil
 }
 
-func (c *bookClient) UpdateBook(ctx context.Context, in *CreateBookRequestBody, opts ...grpc.CallOption) (*CreateBookResponseBody, error) {
+func (c *bookClient) UpdateBook(ctx context.Context, in *UpdateBookRequestBody, opts ...grpc.CallOption) (*CreateBookResponseBody, error) {
 	out := new(CreateBookResponseBody)
 	err := c.cc.Invoke(ctx, Book_UpdateBook_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -73,8 +73,8 @@ func (c *bookClient) UpdateBook(ctx context.Context, in *CreateBookRequestBody, 
 // for forward compatibility
 type BookServer interface {
 	CreateBook(context.Context, *CreateBookRequestBody) (*CreateBookResponseBody, error)
-	GetBook(context.Context, *GetBookRequestBody) (*GetBookResponseBody, error)
-	UpdateBook(context.Context, *CreateBookRequestBody) (*CreateBookResponseBody, error)
+	GetBook(context.Context, *BookID) (*GetBookResponseBody, error)
+	UpdateBook(context.Context, *UpdateBookRequestBody) (*CreateBookResponseBody, error)
 	mustEmbedUnimplementedBookServer()
 }
 
@@ -85,10 +85,10 @@ type UnimplementedBookServer struct {
 func (UnimplementedBookServer) CreateBook(context.Context, *CreateBookRequestBody) (*CreateBookResponseBody, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateBook not implemented")
 }
-func (UnimplementedBookServer) GetBook(context.Context, *GetBookRequestBody) (*GetBookResponseBody, error) {
+func (UnimplementedBookServer) GetBook(context.Context, *BookID) (*GetBookResponseBody, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBook not implemented")
 }
-func (UnimplementedBookServer) UpdateBook(context.Context, *CreateBookRequestBody) (*CreateBookResponseBody, error) {
+func (UnimplementedBookServer) UpdateBook(context.Context, *UpdateBookRequestBody) (*CreateBookResponseBody, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateBook not implemented")
 }
 func (UnimplementedBookServer) mustEmbedUnimplementedBookServer() {}
@@ -123,7 +123,7 @@ func _Book_CreateBook_Handler(srv interface{}, ctx context.Context, dec func(int
 }
 
 func _Book_GetBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetBookRequestBody)
+	in := new(BookID)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -135,13 +135,13 @@ func _Book_GetBook_Handler(srv interface{}, ctx context.Context, dec func(interf
 		FullMethod: Book_GetBook_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BookServer).GetBook(ctx, req.(*GetBookRequestBody))
+		return srv.(BookServer).GetBook(ctx, req.(*BookID))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Book_UpdateBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateBookRequestBody)
+	in := new(UpdateBookRequestBody)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -153,7 +153,7 @@ func _Book_UpdateBook_Handler(srv interface{}, ctx context.Context, dec func(int
 		FullMethod: Book_UpdateBook_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BookServer).UpdateBook(ctx, req.(*CreateBookRequestBody))
+		return srv.(BookServer).UpdateBook(ctx, req.(*UpdateBookRequestBody))
 	}
 	return interceptor(ctx, in, info, handler)
 }
