@@ -1,6 +1,21 @@
 version: '3'
 
 services:
+  sm-db:
+    container_name: sm-db
+    image: kaium123/sm-db
+    ports:
+      - "54321:5432"
+
+    volumes:
+      - sm-db:/var/lib/postgresql
+    environment:
+      POSTGRES_DB: testdb
+      POSTGRES_PASSWORD: 12345678
+    networks:
+      - mygrpcnetwork
+    restart: unless-stopped
+
   grpc-service:
     build:
       context: .
@@ -9,6 +24,9 @@ services:
       - "50051:50051"
     networks:
       - mygrpcnetwork
+    restart: unless-stopped
+    depends_on:
+      - sm-db
 
   envoy-proxy:
     build:
@@ -86,20 +104,7 @@ services:
     env_file:
       - base.env
 
-  sm-db:
-    container_name: sm-db
-    image: kaium123/sm-db
-    ports:
-      - "54321:5432"
-
-    volumes:
-      - sm-db:/var/lib/postgresql
-    environment:
-      POSTGRES_DB: testdb
-      POSTGRES_PASSWORD: 12345678
-    networks:
-      - mygrpcnetwork
-    restart: unless-stopped
+  
 
   social_media_redis:
     container_name: social_media_redis

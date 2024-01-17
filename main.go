@@ -48,7 +48,7 @@ func ConnectDB() {
 	db, err := gorm.Open(postgres.Open(connString), &gorm.Config{Logger: newLogger})
 
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
 	db.AutoMigrate(&Book{})
