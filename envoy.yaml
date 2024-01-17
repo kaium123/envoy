@@ -29,6 +29,8 @@ static_resources:
               routes:
               - match: {prefix: "/helloworld.Greeter"}
                 route: {cluster: service-one, timeout: {seconds: 60}}
+              # - match: {prefix: "/helloworld.Greeter"}
+              #   route: {cluster: service-two, timeout: {seconds: 60}}
 
           http_filters:
 
@@ -53,6 +55,26 @@ static_resources:
               '@type': type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
 
   clusters:
+    # - name: service-two
+    #   type: LOGICAL_DNS
+    #   lb_policy: ROUND_ROBIN
+    #   connect_timeout: 0.25s
+    #   dns_lookup_family: V4_ONLY
+    #   typed_extension_protocol_options:
+    #     envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+    #       "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+    #       explicit_http_config:
+    #         http2_protocol_options: { }
+    #   load_assignment:
+    #     cluster_name: service-two
+    #     endpoints:
+    #       - lb_endpoints:
+    #           - endpoint:
+    #               address:
+    #                 socket_address:
+    #                   address: kong_container
+    #                   port_value: 8000
+
     - name: service-one
       type: LOGICAL_DNS
       lb_policy: ROUND_ROBIN
@@ -70,11 +92,7 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: kong_container
-                      port_value: 8000
-              - endpoint:
-                  address:
-                    socket_address:
                       address: grpc-service
                       port_value: 50051
-                  
+
+    

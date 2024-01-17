@@ -21,12 +21,12 @@ services:
         paths: [ "/health" ]
         methods: [ "GET" ]
 
-  - name: grpc-service
-    host: grpc-service
-    port: 50051
+  - name: envoy_svc
+    host: envoy_container
+    port: 8085
     routes:
-      - name: grpcservice
-        strip_path: true
+      - name: envoy_svc
+        strip_path: false
         paths: [ "/grpcservice" ]
         methods: [ "POST", "GET" ]
       - name: health
