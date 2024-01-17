@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package book;
+option go_package ="/protos/";
+import "google/api/annotations.proto";
+
+
+service Book {
+    rpc CreateBook(CreateBookRequestBody) returns(CreateBookResponseBody){
+        option (google.api.http) = {
+            post : "/book/create"
+        };
+    }
+    rpc GetBook(GetBookRequestBody) returns(GetBookResponseBody){
+        option (google.api.http) = {
+            get : "book/get"
+        };
+    }
+    rpc UpdateBook(CreateBookRequestBody) returns(CreateBookResponseBody){
+        option (google.api.http) = {
+            post : "book/update"
+        };
+    }
+}
+
+message CreateBookRequestBody {
+    string name = 1;
+    int32 author_id = 2;
+}
+
+message CreateBookResponseBody {
+    int32 id = 1;
+    string msg = 2;
+}
+
+message GetBookRequestBody {
+    int32 id = 1;
+}
+
+message GetBookResponseBody {
+    int32 id = 1;
+    string name = 2;
+    int32 author_id = 3;
+}
+
