@@ -32,7 +32,7 @@ services:
 
   grpc-service:
     container_name: grpc-service
-    image: grpc-service:1
+    image: grpc-service:3
     ports:
       - "50051:50051"
     labels:
