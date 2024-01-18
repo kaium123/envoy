@@ -1,4 +1,4 @@
-FROM envoyproxy/envoy:v1.18.4
+FROM envoyproxy/envoy:alpine
 # COPY ./envoy.yaml /etc/envoy/envoy.yaml
 COPY ./protos/helloworld.proto /etc/envoy/protos/helloworld.proto
 COPY ./protos/helloworld.pb /etc/envoy/protos/helloworld.pb

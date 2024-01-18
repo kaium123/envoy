@@ -1,27 +1,23 @@
-# Use an official Go runtime as a parent image
-FROM golang:1.21
+FROM golang:1.21-alpine AS builder
 
-WORKDIR /app1
-
-COPY ./envoy.yaml envoy.yaml
-
-# Set the working directory inside the container
 WORKDIR /go/src/app
 
-# Copy the local package files to the container's workspace
-COPY . .
+COPY go.mod .
+COPY go.sum .
+COPY main.go .
 
-# Install any needed dependencies
+COPY app/ app/
+
 RUN go mod download
 
-# Generate the gRPC code
-# RUN protoc -I proto/ proto/myservice.proto --go_out=plugins=grpc:.
-
-# Build the Go application
 RUN go build -o mygrpcapp .
 
-# Expose port 50051 to the outside world
+FROM alpine AS final
+
+USER nobody:nobody
+
+COPY --from=builder /go/src/app/mygrpcapp /usr/local/bin/mygrpcapp
+
 EXPOSE 50051
 
-# Command to run the executable
-CMD ["./mygrpcapp"]
+CMD ["/usr/local/bin/mygrpcapp"]

@@ -11,7 +11,7 @@ import (
 
 	"net"
 
-	pb "gg/protos"
+	pb "gg/app/protos"
 
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
