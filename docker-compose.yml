@@ -16,23 +16,11 @@ services:
       - mygrpcnetwork
     restart: unless-stopped
 
-  # grpc-service:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "50051:50051"
-  #   networks:
-  #     - mygrpcnetwork
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - sm-db
-  #   env_file:
-  #     - base.env
-
   grpc-service:
     container_name: grpc-service
-    image: grpc-service:3
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "50051:50051"
     labels:
@@ -68,7 +56,6 @@ services:
     environment:
         - KONG_DATABASE=off
         - KONG_DECLARATIVE_CONFIG=/home/kong/config.yml
-        # - KONG_PLUGINS=bundled,my-plugin
         - KONG_PROXY_LISTEN=0.0.0.0:8000
         - KONG_ADMIN_LISTEN=0.0.0.0:8001
         - KONG_LOG_LEVEL=debug
@@ -102,7 +89,7 @@ services:
 
   auth:
     container_name: auth
-    image: auth
+    image: kaium123/auth:2
     ports:
       - "8089:8089"
     labels:
@@ -112,15 +99,15 @@ services:
       - mygrpcnetwork
     depends_on:
       - sm-db
-      - social_media_redis
+      - redis
     restart: unless-stopped
     env_file:
       - base.env
 
   
 
-  social_media_redis:
-    container_name: social_media_redis
+  redis:
+    container_name: redis
     image: 'redis:7-alpine'
     environment:
       - ALLOW_EMPTY_PASSWORD=yes

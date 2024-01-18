@@ -8,11 +8,9 @@ COPY main.go .
 COPY base.env .
 
 COPY app/ app/
-COPY base.env app/
 
 RUN go mod download
 
-# RUN go build -o mygrpcapp .
 RUN CGO_ENABLED=0 GOFLAGS=-mod=mod GOOS=linux go build -ldflags="-w -s" -a -o /mygrpcapp .
 
 FROM alpine AS final
@@ -20,8 +18,6 @@ FROM alpine AS final
 USER nobody:nobody
 
 COPY --chown=nobody:nobody --from=builder /mygrpcapp /mygrpcapp
-COPY --from=builder /app/base.env /base.env
-
 
 EXPOSE 50051
 
