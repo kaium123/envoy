@@ -16,17 +16,36 @@ services:
       - mygrpcnetwork
     restart: unless-stopped
 
+  # grpc-service:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "50051:50051"
+  #   networks:
+  #     - mygrpcnetwork
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - sm-db
+  #   env_file:
+  #     - base.env
+
   grpc-service:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    container_name: grpc-service
+    image: grpc-service:1
     ports:
       - "50051:50051"
+    labels:
+      logging: "promtail"
+      logging_jobname: "containerlogs"
     networks:
       - mygrpcnetwork
-    restart: unless-stopped
     depends_on:
       - sm-db
+    restart: unless-stopped
+    env_file:
+      - base.env
+    
 
   envoy-proxy:
     build:
@@ -44,18 +63,12 @@ services:
       - mygrpcnetwork
 
   kong:
-    build:
-      context: .
-      dockerfile: Dockerfile.kong
+    image: kong
     container_name: kong_container
     environment:
         - KONG_DATABASE=off
-        - KONG_GO_PLUGINS_DIR=/app/go-plugins
         - KONG_DECLARATIVE_CONFIG=/home/kong/config.yml
-        - KONG_PLUGINS=bundled,my-plugin
-        - KONG_PLUGINSERVER_NAMES=my-plugin
-        - KONG_PLUGINSERVER_MY_PLUGIN_START_CMD=/app/go-plugins/my-plugin
-        - KONG_PLUGINSERVER_MY_PLUGIN_QUERY_CMD=/app/go-plugins/my-plugin -dump
+        # - KONG_PLUGINS=bundled,my-plugin
         - KONG_PROXY_LISTEN=0.0.0.0:8000
         - KONG_ADMIN_LISTEN=0.0.0.0:8001
         - KONG_LOG_LEVEL=debug
@@ -67,7 +80,7 @@ services:
         - AUTH_PORT=8089
         - ECHO_URL=echo
     volumes:
-        - ./plugin/config.yml:/home/kong/config.yml:Z
+        - ./kong-template.yml:/home/kong/config.yml:Z
     ports:
         - '8000:8000'
         - '8001:8001'
@@ -89,7 +102,7 @@ services:
 
   auth:
     container_name: auth
-    image: kaium123/auth:2
+    image: auth
     ports:
       - "8089:8089"
     labels:

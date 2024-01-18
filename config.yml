@@ -21,7 +21,7 @@ services:
         paths: [ "/health" ]
         methods: [ "GET" ]
 
-    plugins:
-      - name: my-plugin
-        config:
-          headerkey: "test-header"
+    # plugins:
+    #   - name: my-plugin
+    #     config:
+    #       headerkey: "test-header"

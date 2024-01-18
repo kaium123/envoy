@@ -14,6 +14,7 @@ import (
 	pb "gg/app/protos"
 
 	_ "github.com/lib/pq"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"gorm.io/driver/postgres"
@@ -23,12 +24,46 @@ import (
 
 var Db *gorm.DB
 
+func readConfig() {
+	var err error
+
+	viper.SetConfigFile("base.env")
+	viper.SetConfigType("props")
+	err = viper.ReadInConfig()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if _, err := os.Stat("base.env"); os.IsNotExist(err) {
+		fmt.Println("WARNING: file base.env not found")
+	} else {
+		viper.SetConfigFile("base.env")
+		viper.SetConfigType("props")
+		err = viper.MergeInConfig()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
+
+	for _, key := range viper.AllKeys() {
+		viper.BindEnv(key)
+	}
+
+}
+
 func ConnectDB() {
-	HOST := "sm-db"
-	PORT := "5432"
-	USER := "sm_user3"
-	PASSWORD := "12345678"
-	DBNAME := "testdb"
+	// HOST := "localhost"
+	// PORT := "54321"
+	// USER := "sm_user3"
+	// PASSWORD := "12345678"
+	// DBNAME := "testdb"
+	HOST := viper.GetString("HOST")
+	PORT := viper.GetString("PORT")
+	USER := viper.GetString("DB_USER")
+	PASSWORD := viper.GetString("PASSWORD")
+	DBNAME := viper.GetString("DBNAME")
 	connString := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		HOST, PORT, USER, PASSWORD, DBNAME,
@@ -120,7 +155,9 @@ func (s *server) UpdateBook(ctx context.Context, req *pb.UpdateBookRequestBody) 
 }
 
 func main() {
-	lis, err := net.Listen("tcp", ":50051")
+	readConfig()
+	port := viper.GetString("APP_PORT")
+	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -133,7 +170,7 @@ func main() {
 	pb.RegisterGreeterServer(s, &server{})
 	pb.RegisterBookServer(s, &server{})
 
-	fmt.Println("gRPC server is running on port 50051")
+	fmt.Println("gRPC server is running on port " + port)
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

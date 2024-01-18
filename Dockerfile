@@ -5,8 +5,10 @@ WORKDIR /go/src/app
 COPY go.mod .
 COPY go.sum .
 COPY main.go .
+COPY base.env .
 
 COPY app/ app/
+COPY base.env app/
 
 RUN go mod download
 
@@ -17,6 +19,8 @@ FROM alpine AS final
 USER nobody:nobody
 
 COPY --from=builder /go/src/app/mygrpcapp /usr/local/bin/mygrpcapp
+COPY --from=builder /go/src/app/base.env /usr/local/bin/base.env
+
 
 EXPOSE 50051
 
