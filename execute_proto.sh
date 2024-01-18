@@ -2,3 +2,4 @@ protoc -I. --include_imports --include_source_info --descriptor_set_out=app/prot
 protoc -I. --include_imports --include_source_info --descriptor_set_out=app/protos/book.pb ./app/protos/book.proto
 
 protoc --go_out=. --go-grpc_out=. app/protos/book.proto
+protoc --go_out=. --go-grpc_out=. app/protos/helloworld.proto

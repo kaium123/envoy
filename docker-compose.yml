@@ -115,7 +115,7 @@ services:
     networks:
       - mygrpcnetwork
     ports:
-      - '63792:6379'
+      - '63793:6379'
 
 networks:
   mygrpcnetwork:

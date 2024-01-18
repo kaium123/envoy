@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package book;
 option go_package ="/app/protos/";
+
 import "google/api/annotations.proto";
 
 
