@@ -5,7 +5,6 @@ WORKDIR /app
 COPY go.mod .
 COPY go.sum .
 COPY main.go .
-COPY google/ .
 COPY base.env .
 
 COPY app/ app/

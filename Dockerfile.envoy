@@ -2,7 +2,7 @@ FROM envoyproxy/envoy:v1.18.4
 
 COPY ./app/protos/helloworld.proto /etc/envoy/protos/helloworld.proto
 COPY ./app/protos/helloworld.pb /etc/envoy/protos/helloworld.pb
-COPY ./app/google /etc/envoy/google
+COPY google /etc/envoy/google
 
 COPY ./app/protos/book.proto /etc/envoy/protos/book.proto
 COPY ./app/protos/book.pb /etc/envoy/protos/book.pb
