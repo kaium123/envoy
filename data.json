@@ -3,7 +3,7 @@
 
 {
     "database":{
-        "host":"198.168.49.2",
+        "host":"db-svc",
         "port":"5432",
         "username":"sm_user3",
         "password":"12345678",

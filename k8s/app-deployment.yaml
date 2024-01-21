@@ -21,7 +21,4 @@ spec:
             - name: CONSUL_PATH
               value: "grpc-svc"
             - name: CONSUL_URL
-              value: "10.107.233.235:8500"
-
-
-              # 
+              value: "consul:8500"
