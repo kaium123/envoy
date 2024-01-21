@@ -1,6 +1,15 @@
 version: '3'
 
 services:
+  consul:
+    image: consul:1.15.4
+    container_name: consul
+    ports:
+      - "8500:8500"  
+      - "8600:8600/udp" 
+    networks:
+      - mygrpcnetwork
+
   sm-db:
     container_name: sm-db
     image: kaium123/sm-db
@@ -33,6 +42,9 @@ services:
     restart: unless-stopped
     env_file:
       - base.env
+    environment:
+      CONSUL_PATH: grpc-svc
+      CONSUL_URL: consul:8500
 
   envoy-proxy:
     build:

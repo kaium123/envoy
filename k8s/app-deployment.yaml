@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: api
+  template:
+    metadata:
+      labels:
+        component: api
+    spec:
+      containers:
+        - name: api
+          image: kaium123/grpc-svc:1
+          ports:
+            - containerPort: 50051
+          env:
+            - name: CONSUL_PATH
+              value: "grpc-svc"
+            - name: CONSUL_URL
+              value: "10.107.233.235:8500"
+
+
+              # 

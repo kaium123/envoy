@@ -13,6 +13,7 @@ import (
 
 	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
+	_ "github.com/spf13/viper/remote"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"gorm.io/driver/postgres"
@@ -22,32 +23,48 @@ import (
 
 var Db *gorm.DB
 
+type DatabaseConfig struct {
+	Host     string `mapstructure:"host"`
+	Port     string    `mapstructure:"port"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+	DBName   string `mapstructure:"dbname"`
+}
+
+type ServerConfig struct {
+	Address string `mapstructure:"address"`
+	Port    string `mapstructure:"port"`
+}
+
+type AppConfig struct {
+	Database DatabaseConfig `mapstructure:"database"`
+	Server   ServerConfig   `mapstructure:"server"`
+}
+
+var config AppConfig
+
 func readConfig() {
-	var err error
+	consulPath := os.Getenv("CONSUL_PATH")
+	consulURL := os.Getenv("CONSUL_URL")
 
-	viper.SetConfigFile("base.env")
-	viper.SetConfigType("props")
-	err = viper.ReadInConfig()
+	viper.AddRemoteProvider("consul", consulURL, consulPath)
+	viper.SetConfigType("json") // Need to explicitly set this to json
+
+	err := viper.ReadRemoteConfig()
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
 
-	if _, err := os.Stat("base.env"); os.IsNotExist(err) {
-		fmt.Println("WARNING: file base.env not found")
-	} else {
-		viper.SetConfigFile("base.env")
-		viper.SetConfigType("props")
-		err = viper.MergeInConfig()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+	// Unmarshal the configuration into the AppConfig struct
+	err = viper.Unmarshal(&config)
+	if err != nil {
+		log.Fatal("Error unmarshalling config:", err)
 	}
 
-	for _, key := range viper.AllKeys() {
-		viper.BindEnv(key)
-	}
+	viper.AddRemoteProvider("consul", "localhost:8500", "MY_CONSUL_KEY")
+
+	fmt.Printf("Database Host: %s\n", config.Database.Host)
+	fmt.Printf("Server Address: %s\n", config.Server.Address)
 
 }
 
@@ -57,14 +74,14 @@ func ConnectDB() {
 	// USER := "sm_user3"
 	// PASSWORD := "12345678"
 	// DBNAME := "testdb"
-	HOST := viper.GetString("HOST")
-	PORT := viper.GetString("PORT")
-	USER := viper.GetString("DB_USER")
-	PASSWORD := viper.GetString("PASSWORD")
-	DBNAME := viper.GetString("DBNAME")
+	// HOST := viper.GetString("HOST")
+	// PORT := viper.GetString("PORT")
+	// USER := viper.GetString("DB_USER")
+	// PASSWORD := viper.GetString("PASSWORD")
+	// DBNAME := viper.GetString("DBNAME")
 	connString := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		HOST, PORT, USER, PASSWORD, DBNAME,
+		config.Database.Host, config.Database.Port, config.Database.Username, config.Database.Password, config.Database.DBName,
 	)
 
 	newLogger := logger.New(
@@ -154,8 +171,8 @@ func (s *server) UpdateBook(ctx context.Context, req *pb.UpdateBookRequestBody) 
 
 func main() {
 	readConfig()
-	port := viper.GetString("APP_PORT")
-	lis, err := net.Listen("tcp", ":"+port)
+	// port := viper.GetString("APP_PORT")
+	lis, err := net.Listen("tcp", ":"+config.Server.Port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -168,7 +185,7 @@ func main() {
 	pb.RegisterGreeterServer(s, &server{})
 	pb.RegisterBookServer(s, &server{})
 
-	fmt.Println("gRPC server is running on port " + port)
+	fmt.Println("gRPC server is running on port " + config.Server.Port)
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
