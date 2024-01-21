@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: envoy-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: envoy
+  template:
+    metadata:
+      labels:
+        app: envoy
+    spec:
+      containers:
+      - name: envoy-container
+        image: kaium123/envoy:4
+        volumeMounts:
+        - name: envoy-config-volume
+          mountPath: /etc/envoy
+      volumes:
+      - name: envoy-config-volume
+        configMap:
+          name: envoy-config

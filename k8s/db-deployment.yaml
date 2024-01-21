@@ -1,26 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: postgres-deployment
+  name: postgres-deployment-v2
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: postgres
+      component: postgres
   template:
     metadata:
       labels:
-        app: postgres
+        component: postgres
     spec:
       containers:
-      - name: postgres
-        image: postgres:latest
-        env:
-          - name: POSTGRES_DB
-            value: testdb
-          - name: POSTGRES_USER
-            value: sm_user3
-          - name: POSTGRES_PASSWORD
-            value: "12345678"
-        ports:
-        - containerPort: 5432
+        - name: postgres
+          image: kaium123/sm-db
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_PASSWORD
+              value: "12345678"
+            - name: POSTGRES_DB
+              value: postgres
+            - name: POSTGRES_USER
+              value: postgres
