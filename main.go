@@ -7,8 +7,6 @@ import (
 	"os"
 	"time"
 
-	// "gg/pb"
-
 	"net"
 
 	pb "gg/app/protos"
