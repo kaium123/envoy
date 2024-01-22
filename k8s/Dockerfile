@@ -1,13 +1,15 @@
 FROM envoyproxy/envoy:v1.24.0
 
-# override the existing default envoy.yaml 
-COPY envoy.yaml etc/envoy/envoy.yaml
+# Create the directory for logging
+RUN mkdir -p /app/protos
 
-RUN chmod go+r /etc/envoy/envoy.yaml
-COPY ./helloworld.proto /etc/envoy/protos/
-COPY ./helloworld.pb /etc/envoy/protos/
-COPY ./book.proto /etc/envoy/protos/
-COPY ./book.pb /etc/envoy/protos/
+# Make the directory writable by the Envoy process
+RUN chmod a+w /app/protos
 
+# Copy protobuf files
+COPY ./helloworld.proto /app/protos/
+COPY ./helloworld.pb /app/protos/
+COPY ./book.proto /app/protos/
+COPY ./book.pb /app/protos/
 
 CMD ["/usr/local/bin/envoy", "-c", "/etc/envoy/envoy.yaml"]
