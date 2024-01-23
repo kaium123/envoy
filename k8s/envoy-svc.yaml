@@ -1,13 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: grpc-app-svc
+  name: envoy-service
 spec:
   selector:
-    component: grpc-app
+    app: envoy
   ports:
     - protocol: TCP
-      port: 50051
-      targetPort: 50051
+      port: 10000
+      targetPort: 10000
   type: LoadBalancer
-

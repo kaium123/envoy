@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api-deployment
+  name: grpc-app-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: api
+      component: grpc-app
   template:
     metadata:
       labels:
-        component: api
+        component: grpc-app
     spec:
       containers:
-        - name: api
+        - name: grpc-app
           image: kaium123/grpc-svc:1
           ports:
             - containerPort: 50051

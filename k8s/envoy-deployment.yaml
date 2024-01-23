@@ -13,12 +13,14 @@ spec:
         app: envoy
     spec:
       containers:
-      - name: envoy-container
-        image: kaium123/envoy:4
+      - name: envoy
+        image: envoyproxy/envoy:v1.19.1
+        ports:
+        - containerPort: 10000
         volumeMounts:
-        - name: envoy-config-volume
-          mountPath: /etc/envoy
+          - name: config-volume
+            mountPath: /etc/envoy/envoy-config.yaml
       volumes:
-      - name: envoy-config-volume
-        configMap:
-          name: envoy-config
+        - name: config-volume
+          configMap:
+            name: envoy-config
