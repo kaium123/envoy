@@ -25,7 +25,7 @@ var Db *gorm.DB
 
 type DatabaseConfig struct {
 	Host     string `mapstructure:"host"`
-	Port     string    `mapstructure:"port"`
+	Port     string `mapstructure:"port"`
 	Username string `mapstructure:"username"`
 	Password string `mapstructure:"password"`
 	DBName   string `mapstructure:"dbname"`
@@ -127,6 +127,12 @@ func (s *server) SayHello(ctx context.Context, req *pb.HelloRequest) (*pb.HelloR
 }
 
 func (s *server) CreateBook(ctx context.Context, req *pb.CreateBookRequestBody) (*pb.CreateBookResponseBody, error) {
+	if !req.IsValid {
+		return &pb.CreateBookResponseBody{
+			Id:  0,
+			Msg: "You are not authorized",
+		}, nil
+	}
 	db := GetDB()
 	book := &Book{Name: req.Name, AuthorID: int64(req.AuthorId)}
 	err := db.Create(book).Error
@@ -141,6 +147,12 @@ func (s *server) CreateBook(ctx context.Context, req *pb.CreateBookRequestBody) 
 }
 
 func (s *server) GetBook(ctx context.Context, req *pb.BookID) (*pb.GetBookResponseBody, error) {
+	if !req.IsValid {
+		return &pb.GetBookResponseBody{
+			Id:  0,
+			Msg: "You are not authorized",
+		}, nil
+	}
 	db := GetDB()
 	book := &Book{}
 	err := db.Where("id = ? ", req.Id).First(book).Error
@@ -156,6 +168,12 @@ func (s *server) GetBook(ctx context.Context, req *pb.BookID) (*pb.GetBookRespon
 }
 
 func (s *server) UpdateBook(ctx context.Context, req *pb.UpdateBookRequestBody) (*pb.CreateBookResponseBody, error) {
+	if !req.IsValid {
+		return &pb.CreateBookResponseBody{
+			Id:  0,
+			Msg: "You are not authorized",
+		}, nil
+	}
 	db := GetDB()
 	book := &Book{ID: int64(req.Id), Name: req.Name, AuthorID: int64(req.AuthorId)}
 	err := db.Save(book).Error

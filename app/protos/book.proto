@@ -27,6 +27,7 @@ service Book {
 message CreateBookRequestBody {
     string name = 1;
     int32 author_id = 2;
+    bool is_valid = 3;
 }
 
 message CreateBookResponseBody {
@@ -38,15 +39,20 @@ message GetBookResponseBody {
     int32 id = 1;
     string name = 2;
     int32 author_id = 3;
+    string msg = 4;
 }
 
 message BookID {
     int32 id = 1;
+    bool is_valid = 2;
+
 }
 
 message UpdateBookRequestBody {
     int32 id = 1;
     string name = 2;
     int32 author_id = 3;
+    bool is_valid = 4;
+
 }
 
