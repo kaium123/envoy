@@ -27,10 +27,14 @@ static_resources:
             - name: local_service
               domains: ["*"]
               routes:
-              - match: {prefix: "/"}
-                route: {cluster: service-one, timeout: {seconds: 60}}
-              # - match: {prefix: "/helloworld.Greeter"}
-              #   route: {cluster: service-two, timeout: {seconds: 60}}
+                - match: {prefix: "/app.Book"}
+                  route: {cluster: service-one, timeout: {seconds: 60}}
+                - match: {prefix: "/app.Auth"}
+                  route: {cluster: service-two, timeout: {seconds: 60}}
+
+            
+
+
 
           http_filters:
 
@@ -38,9 +42,9 @@ static_resources:
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_json_transcoder.v3.GrpcJsonTranscoder
               # proto_descriptor_path: "/home/upay/Desktop/envoy/example.pb"
-              proto_descriptor: "/etc/envoy/protos/book.pb"
+              proto_descriptor: "/etc/envoy/protos/app.pb"
               # services: ["helloworld.Greeter"]
-              services: ["book.Book"]
+              services: ["app.Book",app.Auth]
               match_incoming_request_route: false
               ignore_unknown_query_parameters: true
               auto_mapping: false
@@ -93,7 +97,28 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: grpc-service
+                      address: app-service
                       port_value: 50051
+
+    - name: service-two
+      type: LOGICAL_DNS
+      lb_policy: ROUND_ROBIN
+      connect_timeout: 0.25s
+      dns_lookup_family: V4_ONLY
+      typed_extension_protocol_options:
+        envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+          "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+          explicit_http_config:
+            http2_protocol_options: { }
+      load_assignment:
+        cluster_name: service-two
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: auth-service
+                      port_value: 50053
+
 
     

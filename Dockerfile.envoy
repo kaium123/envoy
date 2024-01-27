@@ -1,8 +1,22 @@
-FROM envoyproxy/envoy:alpine
-# COPY ./envoy.yaml /etc/envoy/envoy.yaml
-COPY ./protos/helloworld.proto /etc/envoy/protos/helloworld.proto
-COPY ./protos/helloworld.pb /etc/envoy/protos/helloworld.pb
-COPY ./google /etc/envoy/google
+FROM envoyproxy/envoy:v1.18.4
 
-COPY ./protos/book.proto /etc/envoy/protos/book.proto
-COPY ./protos/book.pb /etc/envoy/protos/book.pb
+# Create the /etc/envoy/protos directory
+RUN mkdir -p /etc/envoy/protos
+
+# Copy proto files to the /etc/envoy/protos directory
+# COPY ./app/protos/helloworld.proto /etc/envoy/protos/
+# COPY ./app/protos/helloworld.pb /etc/envoy/protos/
+# COPY ./app/protos/book.proto /etc/envoy/protos/
+# COPY ./app/protos/book.pb /etc/envoy/protos/
+# COPY ./app/protos/student.proto /etc/envoy/protos/
+# COPY ./app/protos/student.pb /etc/envoy/protos/
+COPY ./app/protos/app.proto /etc/envoy/protos/
+COPY ./app/protos/app.pb /etc/envoy/protos/
+
+# Display the contents of book.pb for debugging purposes
+# RUN cat /etc/envoy/protos/book.pb
+# RUN cat /etc/envoy/protos/student.pb
+RUN cat /etc/envoy/protos/app.pb
+
+
+# Continue with the rest of your Dockerfile...

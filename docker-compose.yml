@@ -1,6 +1,14 @@
 version: '3'
 
 services:
+  consul:
+    image: consul:1.15.4
+    container_name: consul
+    ports:
+      - "8500:8500"  
+      - "8600:8600/udp" 
+    networks:
+      - mygrpcnetwork
   sm-db:
     container_name: sm-db
     image: kaium123/sm-db
@@ -16,17 +24,21 @@ services:
       - mygrpcnetwork
     restart: unless-stopped
 
-  grpc-service:
+  app-service:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: app-service
     ports:
       - "50051:50051"
     networks:
       - mygrpcnetwork
-    restart: unless-stopped
     depends_on:
       - sm-db
+    restart: unless-stopped
+    environment:
+      CONSUL_PATH: app
+      CONSUL_URL: consul:8500
 
   envoy-proxy:
     build:
@@ -39,14 +51,13 @@ services:
       - "8081:8081"
       - "8085:8085"
     depends_on:
-      - grpc-service
+    
+      - app-service
     networks:
       - mygrpcnetwork
 
   kong:
-    build:
-      context: .
-      dockerfile: Dockerfile.kong
+    image: kaium123/kong-plugin
     container_name: kong_container
     environment:
         - KONG_DATABASE=off
@@ -63,9 +74,13 @@ services:
         - KONG_ADMIN_ACCESS_LOG=/dev/stdout
         - KONG_PROXY_ERROR_LOG=/dev/stderr
         - KONG_ADMIN_ERROR_LOG=/dev/stderr
-        - AUTH_URL=auth
-        - AUTH_PORT=8089
+        - KONG_NGINX_MAIN_ENV=RLS_DEBUG;env AUTH_URL; env AUTH_PORT
+        - RLS_DEBUG=true
+        - AUTH_URL=auth-service
+        - AUTH_PORT=50053
         - ECHO_URL=echo
+        - ENVOY_URL=envoy_container
+        - ENVOY_PORT=8085
     volumes:
         - ./plugin/config.yml:/home/kong/config.yml:Z
     ports:
@@ -103,6 +118,23 @@ services:
     restart: unless-stopped
     env_file:
       - base.env
+
+  auth-service:
+    image: kaium/token-auth
+    container_name: auth-service
+    ports:
+      - "50053:50053"
+    labels:
+      logging: "promtail"
+      logging_jobname: "containerlogs"
+    networks:
+      - mygrpcnetwork
+    depends_on:
+      - sm-db
+    restart: unless-stopped
+    environment:
+      CONSUL_PATH: auth
+      CONSUL_URL: consul:8500
 
   
 
