@@ -164,11 +164,18 @@ func (s *server) CreateBook(ctx context.Context, req *pb.CreateBookRequestBody) 
 }
 
 func (s *server) GetBook(ctx context.Context, req *pb.BookID) (*pb.GetBookResponseBody, error) {
-	if !req.IsValid {
-		return &pb.GetBookResponseBody{
-			Id:  0,
-			Msg: "You are not authorized",
-		}, nil
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, fmt.Errorf("failed to get headers from context")
+	}
+
+	if isValid, exists := md["is_valid"]; exists {
+		if isValid[0] == "false" {
+			return &pb.GetBookResponseBody{
+				Id:  0,
+				Msg: "You are not authorized",
+			}, nil
+		}
 	}
 
 	db := GetDB()
@@ -187,11 +194,18 @@ func (s *server) GetBook(ctx context.Context, req *pb.BookID) (*pb.GetBookRespon
 }
 
 func (s *server) UpdateBook(ctx context.Context, req *pb.UpdateBookRequestBody) (*pb.CreateBookResponseBody, error) {
-	if !req.IsValid {
-		return &pb.CreateBookResponseBody{
-			Id:  0,
-			Msg: "You are not authorized",
-		}, nil
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, fmt.Errorf("failed to get headers from context")
+	}
+
+	if isValid, exists := md["is_valid"]; exists {
+		if isValid[0] == "false" {
+			return &pb.CreateBookResponseBody{
+				Id:  0,
+				Msg: "You are not authorized",
+			}, nil
+		}
 	}
 
 	db := GetDB()
